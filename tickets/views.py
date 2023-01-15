@@ -8,6 +8,9 @@ from rest_framework import status, filters
 from rest_framework.views import APIView
 from django.http import Http404
 from rest_framework import generics, mixins, viewsets
+from rest_framework.authentication import BasicAuthentication, TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+from .permessions import * 
 
 #1 Without rest framework and no model query (Function based view)
 def no_rest_no_model(request):
@@ -166,11 +169,15 @@ class mixins_pk(
 class generics_list(generics.ListCreateAPIView):
     queryset = Guest.objects.all()
     serializer_class = GuestSerializers 
+    authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
 
 #6.2 GET PUT DELETE 
 class generics_pk(generics.RetrieveUpdateDestroyAPIView):
     queryset = Guest.objects.all()
     serializer_class = GuestSerializers
+    authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
 
 # Viewsets 
 class viewsets_guest(viewsets.ModelViewSet):
@@ -215,3 +222,16 @@ def new_reservation(request):
     reservation.save()
 
     return Response(status=status.HTTP_201_CREATED)
+
+
+#10 post author editor 
+class Post_list(generics.ListCreateAPIView):
+    permission_classes = [IsAuthorOrReadOnly]
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer 
+
+
+class Post_pk(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthorOrReadOnly]
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer 
